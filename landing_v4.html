@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Solutions - WhatsApp Integration</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            /* Sober Corporate Palette */
+            --brand: #1e293b;
+            /* Slate 800 */
+            --brand-accent: #334155;
+            /* Slate 700 */
+            --highlight: #0f172a;
+            /* Slate 900 */
+            --bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            /* Slate 600 */
+            --bg-secondary: #f1f5f9;
+            /* Slate 100 */
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Navigation --- */
+        .top-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 20;
+        }
+
+        .login-link {
+            text-decoration: none;
+            color: var(--brand);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .login-link:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            /* Border removed as requested */
+            border-bottom: none;
+            /* Added separation from top */
+            padding-top: 100px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: var(--brand);
+        }
+
+        .hero-text p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 460px;
+            font-weight: 300;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--brand);
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-secondary);
+            border-color: var(--brand);
+        }
+
+        /* Canvas Integration */
+        .canvas-wrapper {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 1;
+            mask-image: linear-gradient(to right, transparent 5%, black 40%);
+            -webkit-mask-image: linear-gradient(to right, transparent 5%, black 40%);
+            pointer-events: none;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Floating Labels --- */
+        .floating-card {
+            position: absolute;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--brand);
+            opacity: 0;
+            animation: fadeInFloat 1s forwards ease-out, floatHover 6s ease-in-out infinite;
+        }
+
+        .floating-card::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--brand);
+            border-radius: 50%;
+        }
+
+        /* --- Topic Tags --- */
+        .topic-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            background-color: white;
+            color: var(--brand);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .topic-tag.tag-dark {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            box-shadow: none;
+        }
+
+        .card-1 {
+            top: 25%;
+            right: 15%;
+            animation-delay: 0.2s, 0s;
+        }
+
+        .card-2 {
+            top: 50%;
+            right: 25%;
+            animation-delay: 0.6s, 2s;
+        }
+
+        .card-3 {
+            top: 75%;
+            right: 10%;
+            animation-delay: 1s, 4s;
+        }
+
+        @keyframes fadeInFloat {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes floatHover {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Capabilities Section (Full Bleed Bento Grid) --- */
+        .capabilities-section {
+            /* Top separation kept, bottom removed to touch next section */
+            padding: 60px 0 0 0;
+            background-color: var(--bg);
+            /* White background for the gaps */
+        }
+
+        /* 3-Column Full Width Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* Reduced from 300px to 240px to make cards shorter */
+            grid-auto-rows: minmax(240px, auto);
+            gap: 1px;
+            /* Creates the grid lines */
+            width: 100%;
+            /* Border color creates the lines between cards */
+            background-color: var(--border);
+            /* Add top/bottom border to grid itself to define it against the whitespace */
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Bento Cells Spanning */
+        .span-2-col {
+            grid-column: span 2;
+        }
+
+        .span-2-row {
+            grid-row: span 2;
+        }
+
+        .span-3-col {
+            grid-column: span 3;
+        }
+
+        /* Full width */
+        .span-1 {
+            grid-column: span 1;
+        }
+
+        .bento-card {
+            background: white;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            justify-content: space-between;
+            transition: background 0.3s;
+        }
+
+        .bento-card:hover {
+            background: #f0f9ff;
+            /* Slightly light-blue on hover */
+        }
+
+        /* Title Card Styling */
+        .bento-title-card {
+            background: var(--brand);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px;
+        }
+
+        .bento-title-card:hover {
+            background: var(--brand);
+        }
+
+        .bento-title-card h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+
+        .bento-title-card p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.125rem;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .bento-visual {
+            width: 100%;
+            flex-grow: 1;
+            background: transparent;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .span-2-row .bento-visual {
+            /* Reduced from 400px to 300px for compactness */
+            height: 300px;
+        }
+
+        .span-3-col .bento-visual {
+            height: 250px;
+        }
+
+        .bento-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .bento-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .bento-content p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+        /* --- Process Section (New) --- */
+        .process-section {
+            padding: 100px 0;
+            background-color: var(--bg-secondary);
+            border-top: none;
+            /* Removed border-top since bento-grid has border-bottom */
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+            position: relative;
+        }
+
+        /* Connecting Line */
+        .timeline-grid::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+
+        .step-card {
+            background: var(--bg);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: var(--brand);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 0 8px var(--bg-secondary);
+            /* Creates gap around line */
+        }
+
+        .step-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .step-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* --- Pricing Section --- */
+        .pricing-section {
+            padding: 100px 0;
+            background-color: var(--bg);
+        }
+
+        .center-header {
+            text-align: center;
+            margin: 0 auto 60px;
+            max-width: 700px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            align-items: stretch;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .pricing-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-bottom: 24px;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 40px;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--brand);
+            font-weight: bold;
+        }
+
+        /* --- Comparison Section --- */
+        .comparison-section {
+            padding: 100px 0;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            text-align: left;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison-table td {
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .comparison-col-brand {
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--brand) !important;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        .comparison-header-brand {
+            background-color: var(--brand);
+            color: white !important;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .check-icon {
+            color: var(--brand);
+            font-weight: bold;
+        }
+
+        .cross-icon {
+            color: #cbd5e1;
+        }
+
+        /* --- Waitlist Section --- */
+        .waitlist-section {
+            background-color: var(--brand);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .waitlist-container {
+            max-width: 550px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .waitlist-form {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .waitlist-input {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .btn-white {
+            background-color: white;
+            color: var(--brand);
+            border: none;
+            font-weight: 600;
+            padding: 14px 28px;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-white:hover {
+            background-color: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 900px) {
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Collapse Bento on Mobile */
+            .bento-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: auto;
+            }
+
+            .span-2-col,
+            .span-2-row,
+            .span-3-col {
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            .bento-visual {
+                min-height: 200px;
+                height: 200px;
+            }
+
+            .bento-title-card {
+                order: -1;
+                padding: 40px;
+            }
+
+            /* Title first on mobile */
+            .bento-card {
+                padding: 32px;
+            }
+
+            .timeline-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-grid::before {
+                display: none;
+            }
+
+            /* Hide line on mobile */
+            .step-number {
+                box-shadow: none;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .canvas-wrapper {
+                position: relative;
+                width: 100%;
+                height: 250px;
+                mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            }
+
+            .waitlist-form {
+                flex-direction: column;
+            }
+
+            .floating-card {
+                display: none;
+            }
+
+            .comparison-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <a href="#" class="login-link">Acceso Clientes</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="canvas-wrapper">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <h1>Automatización Inteligente para Canales Corporativos.</h1>
+                    <p>Optimice la gestión de clientes en WhatsApp mediante algoritmos de procesamiento de lenguaje
+                        natural y respuestas automatizadas de baja latencia.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Labels -->
+        <div class="floating-card card-1">Calendario</div>
+        <div class="floating-card card-2">Banco de Información</div>
+        <div class="floating-card card-3">Asistencia Humana</div>
+    </section>
+
+    <!-- Capabilities Section (Full Bleed Bento Grid) -->
+    <section class="capabilities-section">
+        <div class="bento-grid">
+
+            <!-- Card 1: Interaction (Large: 2x2) -->
+            <div class="bento-card span-2-col span-2-row">
+                <div class="bento-visual">
+                    <canvas id="canvas-human" class="bento-canvas"></canvas>
+                </div>
+                <div class="bento-content">
+                    <h3>Interacción Natural</h3>
+                    <p>NLP avanzado que simula la empatía y el tono humano. Las respuestas se adaptan al contexto
+                        histórico del cliente para crear una experiencia fluida y coherente.</p>
+                </div>
+            </div>
+
+            <!-- Card 2: Integrations (Tall Column: 1x2) -->
+            <div class="bento-card span-2-row">
+                <div class="bento-visual">
+                    <canvas id="canvas-integrations" class="bento-canvas"></canvas>
+                </div>
+                <div class="bento-content">
+                    <h3>Ecosistema</h3>
+                    <p>Conexión nativa con Google Workspace. Actualice Sheets y Drive en tiempo real.</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Availability (Standard: 1x1) -->
+            <div class="bento-card">
+                <div class="bento-visual">
+                    <canvas id="canvas-247" class="bento-canvas"></canvas>
+                </div>
+                <div class="bento-content">
+                    <h3>Disponibilidad 24/7</h3>
+                    <p>Atención continua garantizada sin interrupciones.</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Customization (Standard: 1x1) -->
+            <div class="bento-card">
+                <div class="bento-visual">
+                    <canvas id="canvas-custom" class="bento-canvas"></canvas>
+                </div>
+                <div class="bento-content">
+                    <h3>Personalización</h3>
+                    <p>Reglas de negocio a medida.</p>
+                </div>
+            </div>
+
+            <!-- Card 5: Title Card (Standard: 1x1 - Bottom Right) -->
+            <div class="bento-title-card">
+                <span class="topic-tag tag-dark">Capacidades</span>
+                <h2>Funcionalidades Empresariales</h2>
+                <p>Infraestructura diseñada para la escala.</p>
+            </div>
+
+            <!-- Card 6: CRM Integration (Full Width: 3 cols) -->
+            <div class="bento-card span-3-col">
+                <div class="bento-visual">
+                    <canvas id="canvas-crm" class="bento-canvas"></canvas>
+                </div>
+                <div class="bento-content" style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div>
+                        <h3>CRM Simplificado</h3>
+                        <p>Gestión automática de contactos. Clasificación inteligente y seguimiento de interacciones en
+                            tiempo real.</p>
+                    </div>
+                    <div style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:var(--text-muted);">
+                        STATUS: ACTIVE // SYNCING
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Process Section (New) -->
+    <section class="process-section">
+        <div class="container">
+            <div class="section-header center-header">
+                <span class="topic-tag">Workflow</span>
+                <h2>Paso a paso</h2>
+                <p>Implementación ágil y segura en tres etapas.</p>
+            </div>
+
+            <div class="timeline-grid">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Configuración a Medida</h3>
+                    <p>Te ayudamos a configurar el bot de acuerdo a tu negocio, definiendo reglas de respuesta y
+                        conectando tus fuentes de datos.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Validación Segura</h3>
+                    <p>Lo testeás en nuestro ambiente seguro para verificar que funciona como esperás antes de exponerlo
+                        a clientes reales.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Despliegue Controlado</h3>
+                    <p>Lo vas habilitando a tus contactos en los tiempos que te sientas cómodo, escalando el volumen
+                        gradualmente.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+        <div class="container">
+            <div class="section-header center-header">
+                <span class="topic-tag">Inversión</span>
+                <h2>Planes Flexibles</h2>
+                <p>Soluciones escalables adaptadas al volumen de interacción y requerimientos técnicos de su empresa.
+                </p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Plan 1 -->
+                <div class="pricing-card">
+                    <div class="pricing-title">Inicial</div>
+                    <div class="pricing-price">$49<span>/mes</span></div>
+                    <ul class="pricing-features">
+                        <li>1,000 conversaciones/mes</li>
+                        <li>Respuestas automáticas básicas</li>
+                        <li>Integración con Calendar</li>
+                        <li>Soporte por email</li>
+                    </ul>
+                    <button class="btn btn-outline">Seleccionar Plan</button>
+                </div>
+
+                <!-- Plan 2 -->
+                <div class="pricing-card">
+                    <div class="pricing-title">Corporativo</div>
+                    <div class="pricing-price">Custom</div>
+                    <ul class="pricing-features">
+                        <li>Infraestructura dedicada</li>
+                        <li>Entrenamiento de modelo personalizado</li>
+                        <li>SLA garantizado</li>
+                        <li>API de acceso completo</li>
+                        <li>Gestor de cuenta dedicado</li>
+                    </ul>
+                    <button class="btn btn-outline">Contactar Ventas</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+        <div class="container">
+            <div class="section-header center-header">
+                <span class="topic-tag">Ventajas</span>
+                <h2>Análisis Comparativo</h2>
+                <p>Evalúe las ventajas estratégicas de nuestra plataforma frente a soluciones genéricas del mercado.</p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Característica</th>
+                        <th class="comparison-header-brand" style="width: 30%;">Nuestra Plataforma</th>
+                        <th style="width: 30%;">Bots Genéricos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Retención de Contexto</strong><br><span
+                                style="font-size:0.85rem; color:var(--text-muted)">Capacidad de recordar detalles de la
+                                conversación previa.</span></td>
+                        <td class="comparison-col-brand"><span class="check-icon">✓</span> Histórico completo</td>
+                        <td><span class="cross-icon">✗</span> Limitado a sesión actual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Latencia de Respuesta</strong><br><span
+                                style="font-size:0.85rem; color:var(--text-muted)">Tiempo promedio de procesamiento por
+                                mensaje.</span></td>
+                        <td class="comparison-col-brand"><span class="check-icon">✓</span> &lt; 200ms</td>
+                        <td><span class="cross-icon">−</span> Variable (1-3s)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Integración Calendar</strong><br><span
+                                style="font-size:0.85rem; color:var(--text-muted)">Sincronización nativa con
+                                Google/Outlook.</span></td>
+                        <td class="comparison-col-brand"><span class="check-icon">✓</span> Bidireccional Real-time</td>
+                        <td><span class="cross-icon">✗</span> Requiere Zapier/Make</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mantenimiento</strong><br><span
+                                style="font-size:0.85rem; color:var(--text-muted)">Necesidad de ajustes técnicos
+                                manuales.</span></td>
+                        <td class="comparison-col-brand"><span class="check-icon">✓</span> Gestionado (Automático)</td>
+                        <td><span class="cross-icon">−</span> Manual constante</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Waitlist Section -->
+    <section id="waitlist" class="waitlist-section">
+        <div class="waitlist-container">
+            <span class="topic-tag tag-dark">Beta</span>
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 12px;">Acceso Anticipado</h2>
+            <p style="opacity: 0.9; font-size: 1rem;">Actualmente nos encontramos en fase beta cerrada. Ingrese su
+                correo corporativo para recibir información sobre disponibilidad.</p>
+
+            <form class="waitlist-form"
+                onsubmit="event.preventDefault(); alert('Solicitud registrada. Nos pondremos en contacto brevemente.');">
+                <button type="submit" class="btn-white">Registrar Interés</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 2D Canvas Script (Hero - Tangent Line) -->
+    <script>
+        (function () {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let time = 0;
+
+            function resize() {
+                const rect = canvas.getBoundingClientRect();
+                width = rect.width * 2;
+                height = rect.height * 2;
+                canvas.width = width;
+                canvas.height = height;
+                ctx.scale(2, 2);
+                width = rect.width;
+                height = rect.height;
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Stable sine wave for corporate feel
+            const f = (x) => Math.sin(x * 0.02) * (height * 0.2);
+            const df = (x) => Math.cos(x * 0.02) * 0.02 * (height * 0.2);
+
+            function drawGrid() {
+                ctx.strokeStyle = 'rgba(30, 41, 59, 0.05)'; // Very faint slate grid
+                ctx.lineWidth = 1;
+                const step = 50;
+                for (let x = 0; x < width; x += step) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+                }
+                for (let y = 0; y < height; y += step) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                drawGrid();
+                const centerY = height / 2;
+                time += 0.005;
+                const currentX = (width / 2) + Math.sin(time * 0.4) * (width * 0.25);
+                const currentY = centerY + f(currentX - width / 2);
+
+                // Path
+                ctx.beginPath();
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                for (let x = 0; x < width; x += 2) {
+                    const y = centerY + f(x - width / 2);
+                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Tangent Line
+                const slope = df(currentX - width / 2);
+                const lineLength = 180;
+                const tx1 = currentX - lineLength;
+                const ty1 = currentY - (slope * lineLength);
+                const tx2 = currentX + lineLength;
+                const ty2 = currentY + (slope * lineLength);
+
+                ctx.beginPath();
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 3;
+                ctx.moveTo(tx1, ty1);
+                ctx.lineTo(tx2, ty2);
+                ctx.stroke();
+
+                // Point
+                ctx.beginPath();
+                ctx.fillStyle = '#ffffff';
+                ctx.arc(currentX, currentY, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#1e293b';
+                ctx.stroke();
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+    </script>
+
+    <!-- Bento Grid Animations Controller -->
+    <script>
+        (function () {
+            const canvases = {
+                c247: document.getElementById('canvas-247'),
+                cHuman: document.getElementById('canvas-human'),
+                cInt: document.getElementById('canvas-integrations'),
+                cCustom: document.getElementById('canvas-custom')
+            };
+
+            if (!canvases.c247) return;
+
+            const contexts = {};
+            for (let k in canvases) contexts[k] = canvases[k].getContext('2d');
+
+            let dims = {};
+
+            // RoundRect Polyfill for compatibility
+            if (CanvasRenderingContext2D.prototype.roundRect === undefined) {
+                CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                    if (w < 2 * r) r = w / 2;
+                    if (h < 2 * r) r = h / 2;
+                    this.moveTo(x + r, y);
+                    this.arcTo(x + w, y, x + w, y + h, r);
+                    this.arcTo(x + w, y + h, x, y + h, r);
+                    this.arcTo(x, y + h, x, y, r);
+                    this.arcTo(x, y, x + w, y, r);
+                    this.closePath();
+                    return this;
+                };
+            }
+
+            function resizeCanvas(key) {
+                const canvas = canvases[key];
+                const rect = canvas.parentElement.getBoundingClientRect();
+                // High DPI support
+                canvas.width = rect.width * 2;
+                canvas.height = rect.height * 2;
+                contexts[key].scale(2, 2);
+                dims[key] = { w: rect.width, h: rect.height };
+            }
+
+            function resizeAll() { for (let k in canvases) resizeCanvas(k); }
+            window.addEventListener('resize', resizeAll);
+            resizeAll();
+
+            let time = 0;
+
+            // Visual: Analog Clock
+            function drawClock() {
+                const ctx = contexts.c247;
+                const { w, h } = dims.c247;
+                ctx.clearRect(0, 0, w, h);
+
+                const cx = w / 2, cy = h / 2;
+                const radius = 50;
+
+                // Clock Face
+                ctx.beginPath();
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 3;
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Hour Marks
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * 30) * Math.PI / 180;
+                    const sx = cx + Math.cos(angle) * (radius - 10);
+                    const sy = cy + Math.sin(angle) * (radius - 10);
+                    const ex = cx + Math.cos(angle) * (radius - 4);
+                    const ey = cy + Math.sin(angle) * (radius - 4);
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.lineTo(ex, ey);
+                    ctx.stroke();
+                }
+
+                // Hands
+                const hourAngle = (time * 0.5) % (Math.PI * 2);
+                const minuteAngle = (time * 6) % (Math.PI * 2);
+
+                // Hour Hand
+                ctx.beginPath();
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(hourAngle - Math.PI / 2) * 25, cy + Math.sin(hourAngle - Math.PI / 2) * 25);
+                ctx.stroke();
+
+                // Minute Hand
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(minuteAngle - Math.PI / 2) * 35, cy + Math.sin(minuteAngle - Math.PI / 2) * 35);
+                ctx.stroke();
+
+                // Center Pin
+                ctx.beginPath();
+                ctx.fillStyle = '#1e293b';
+                ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Visual: Conversation Picker (iOS Style) - Snap & Hold
+            function drawChat() {
+                const ctx = contexts.cHuman;
+                const { w, h } = dims.cHuman;
+                ctx.clearRect(0, 0, w, h);
+
+                const cx = w / 2, cy = h / 2;
+
+                const phrases = [
+                    "Hola! ¿En qué te ayudo?",
+                    "Tengo estos horarios disponibles",
+                    "Confirmando tu cita...",
+                    "¿Prefieres mañana?",
+                    "Gracias por tu compra",
+                    "Enviando detalles..."
+                ];
+
+                // Animation Logic: Snap and Hold
+                const pauseTime = 1.8;
+                const moveTime = 0.5;
+                const totalStepTime = pauseTime + moveTime;
+
+                const currentStep = Math.floor(time / totalStepTime);
+                const stepProgress = time % totalStepTime;
+
+                let viewPos = currentStep;
+
+                if (stepProgress > pauseTime) {
+                    const moveProgress = (stepProgress - pauseTime) / moveTime;
+                    const ease = t => t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+                    viewPos += ease(moveProgress);
+                }
+
+                const centerIdx = Math.floor(viewPos);
+                const offset = viewPos % 1;
+
+                const itemHeight = 50;
+
+                // Draw Selection Highlight (Center) - WIDER
+                ctx.fillStyle = "#f1f5f9";
+                ctx.beginPath();
+                ctx.roundRect(cx - 210, cy - 30, 420, 60, 12);
+                ctx.fill();
+
+                // Draw items (Center + 2 above + 2 below)
+                for (let i = -2; i <= 2; i++) {
+                    let idx = (centerIdx + i) % phrases.length;
+                    if (idx < 0) idx += phrases.length;
+
+                    const text = phrases[idx];
+                    const y = cy + (i * itemHeight) - (offset * itemHeight);
+                    const dist = Math.abs(y - cy);
+                    const maxDist = 120;
+
+                    let alpha = 1 - Math.min(dist / maxDist, 1);
+                    alpha = Math.pow(alpha, 1.5);
+                    const scale = 1 - (Math.min(dist / maxDist, 1) * 0.3);
+
+                    if (alpha > 0.05) {
+                        ctx.globalAlpha = alpha;
+                        ctx.font = `600 ${22 * scale}px Inter`;
+                        ctx.fillStyle = "#1e293b";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(text, cx, y);
+                    }
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // Integration Tags State
+            const intTags = [];
+            const tagTypes = [
+                { id: 'sheets', label: "Google Sheets" },
+                { id: 'calendar', label: "Google Calendar" },
+                { id: 'drive', label: "Google Drive" },
+                { id: 'pdf', label: "Archivos PDF" },
+                { id: 'whatsapp', label: "Whatsapp" }
+            ];
+
+            let intFrameCount = 0;
+            let intTypeIndex = 0;
+
+            function drawIcon(ctx, type, x, y) {
+                ctx.save();
+                ctx.translate(x, y);
+
+                if (type === 'sheets') {
+                    // Green folder/sheet
+                    ctx.fillStyle = "#34A853";
+                    ctx.beginPath(); ctx.roundRect(-9, -9, 18, 18, 4); ctx.fill();
+                    // White grid
+                    ctx.fillStyle = "rgba(255,255,255,0.9)";
+                    ctx.fillRect(-5, -2, 10, 2); ctx.fillRect(0, -5, 2, 10);
+                } else if (type === 'calendar') {
+                    // Calendar Page
+                    ctx.fillStyle = "#ffffff";
+                    ctx.shadowColor = "rgba(0,0,0,0.1)"; ctx.shadowBlur = 2;
+                    ctx.beginPath(); ctx.roundRect(-9, -9, 18, 18, 3); ctx.fill(); ctx.shadowColor = "transparent";
+                    // Logo colors
+                    ctx.fillStyle = "#4285F4"; ctx.beginPath(); ctx.moveTo(9, 9); ctx.lineTo(0, 9); ctx.lineTo(9, 0); ctx.fill();
+                    // Number 31
+                    ctx.fillStyle = "#1e293b"; ctx.font = "bold 9px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.fillText("31", -1, 1);
+                } else if (type === 'drive') {
+                    // Drive Triangle
+                    ctx.lineJoin = "round"; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(6, 4); ctx.strokeStyle = "#FFC017"; ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(6, 4); ctx.lineTo(-6, 4); ctx.strokeStyle = "#4285F4"; ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-6, 4); ctx.lineTo(0, -7); ctx.strokeStyle = "#34A853"; ctx.stroke();
+                } else if (type === 'pdf') {
+                    // Red PDF file
+                    ctx.fillStyle = "#EA4335";
+                    ctx.beginPath(); ctx.roundRect(-8, -10, 16, 20, 3); ctx.fill();
+                    // White lines
+                    ctx.fillStyle = "white"; ctx.fillRect(-4, -4, 8, 2); ctx.fillRect(-4, 0, 8, 2); ctx.fillRect(-4, 4, 6, 2);
+                } else if (type === 'whatsapp') {
+                    // WhatsApp Bubble
+                    ctx.fillStyle = "#25D366";
+                    ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.fill();
+                    // White phone/arc
+                    ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.lineCap = "round";
+                    ctx.beginPath(); ctx.arc(0, 0, 5, 0.5, Math.PI - 0.5); ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+
+            function drawIntegrations() {
+                const ctx = contexts.cInt;
+                const { w, h } = dims.cInt;
+                ctx.clearRect(0, 0, w, h);
+
+                // Spawn exactly every 60 frames (approx 1 second at 60fps)
+                intFrameCount++;
+                if (intFrameCount % 60 === 0) {
+                    const type = tagTypes[intTypeIndex];
+                    intTypeIndex = (intTypeIndex + 1) % tagTypes.length; // Sequential order
+
+                    intTags.push({
+                        x: w * 0.15 + Math.random() * w * 0.7,
+                        y: h * 0.2 + Math.random() * h * 0.6,
+                        type: type,
+                        life: 0,
+                        // 2 seconds wiggle (120 frames) + 0.5s fade out (30 frames) = 150 frames
+                        maxLife: 150,
+                        angleOffset: Math.random() * Math.PI * 2,
+                        floatSpeed: 0.5 + Math.random() * 0.5
+                    });
+                }
+
+                // Draw Tags
+                for (let i = intTags.length - 1; i >= 0; i--) {
+                    const tag = intTags[i];
+                    tag.life++;
+
+                    if (tag.life >= tag.maxLife) {
+                        intTags.splice(i, 1);
+                        continue;
+                    }
+
+                    // Opacity lifecycle: Fast Fade In -> Wiggle (2s) -> Fade Out
+                    let alpha = 1;
+                    if (tag.life < 15) alpha = tag.life / 15;
+                    else if (tag.life > tag.maxLife - 30) alpha = (tag.maxLife - tag.life) / 30;
+
+                    // Animation: Gentle Wiggle & Float
+                    const wiggle = Math.sin(time * 2 + tag.angleOffset) * 0.05;
+                    const floatY = Math.sin(time * tag.floatSpeed + tag.angleOffset) * 4;
+
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.translate(tag.x, tag.y + floatY);
+                    ctx.rotate(wiggle);
+
+                    // Card Background (White Pill)
+                    const cardW = 145;
+                    const cardH = 36;
+
+                    // Shadow
+                    ctx.shadowColor = "rgba(0,0,0,0.08)";
+                    ctx.shadowBlur = 12;
+                    ctx.shadowOffsetY = 4;
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.beginPath();
+                    ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 8);
+                    ctx.fill();
+
+                    // Border
+                    ctx.shadowColor = "transparent";
+                    ctx.strokeStyle = "#e2e8f0";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    // Draw Custom Icon
+                    drawIcon(ctx, tag.type.id, -cardW / 2 + 20, 0);
+
+                    // Label
+                    ctx.fillStyle = "#1e293b";
+                    ctx.textAlign = "left";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "600 13px Inter, sans-serif";
+                    ctx.fillText(tag.type.label, -cardW / 2 + 40, 1);
+
+                    ctx.restore();
+                }
+            }
+
+            // Visual: Toggle Switches
+            function drawCustom() {
+                const ctx = contexts.cCustom;
+                const { w, h } = dims.cCustom;
+                ctx.clearRect(0, 0, w, h);
+
+                const cx = w / 2, cy = h / 2;
+                const toggles = [
+                    { y: cy - 25, offset: 0 },
+                    { y: cy + 25, offset: Math.PI }
+                ];
+
+                toggles.forEach(t => {
+                    // Determine state based on sine wave
+                    const state = Math.sin(time * 2 + t.offset); // -1 to 1
+                    const isOn = state > 0;
+                    const xPos = state * 12; // Slide range
+
+                    // Track
+                    ctx.beginPath();
+                    ctx.fillStyle = isOn ? '#10b981' : '#cbd5e1'; // Green or Gray
+                    ctx.roundRect(cx - 25, t.y - 12, 50, 24, 12);
+                    ctx.fill();
+
+                    // Knob
+                    ctx.beginPath();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = "rgba(0,0,0,0.2)";
+                    ctx.shadowBlur = 4;
+                    ctx.arc(cx + xPos, t.y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            function animate() {
+                time += 0.02;
+                drawClock();
+                drawChat();
+                drawIntegrations();
+                drawCustom();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+
+    <!-- Isometric CRM Animation (Separate Script to avoid conflict) -->
+    <script>
+        (function () {
+            const canvas = document.getElementById('canvas-crm');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width, height, cx, cy;
+            const scale = 50; // Slightly reduced scale for card fit
+            const hx = 2.0;
+            const hy = 1.2;
+            const hz = 0.25;
+
+            const contacts = [
+                { name: "Sofia Rodriguez", whatsapp: "+54 911 5555 0101", interests: "Diseño, UX/UI", date: "18/01/2026" },
+                { name: "Juan Perez", whatsapp: "+54 911 3333 2222", interests: "Ventas, CRM", date: "15/01/2026", tag: "Cliente Recurrente" },
+                { name: "Maria Garcia", whatsapp: "+54 935 1234 8888", interests: "Marketing Digital", date: "10/01/2026" },
+                { name: "Lucas M.", whatsapp: "+54 911 9876 5432", interests: "Dev, React, Node", date: "19/01/2026" }
+            ];
+
+            function resize() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                width = rect.width * 2;
+                height = rect.height * 2;
+                canvas.width = width;
+                canvas.height = height;
+                ctx.scale(2, 2);
+                // Logical center
+                cx = rect.width / 2;
+                cy = rect.height / 2;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            function toScreen(x, y, z) {
+                const angle = Math.PI / 6;
+                const xs = (x - z) * Math.cos(angle);
+                const ys = (x + z) * Math.sin(angle) - y;
+                return { x: cx + xs * scale, y: cy + ys * scale };
+            }
+
+            function drawPolygon(points, color, strokeColor) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+                ctx.closePath();
+                if (color) { ctx.fillStyle = color; ctx.fill(); }
+                if (strokeColor) { ctx.strokeStyle = strokeColor; ctx.lineWidth = 1; ctx.stroke(); }
+            }
+
+            function easeInOutCubic(x) {
+                return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+            }
+
+            function drawBox(zOffset, index) {
+                let boxAlpha = 1.0;
+                // Fade logic based on Z depth to hide entering/leaving cards
+                const absZ = Math.abs(zOffset);
+                if (absZ > 3.5) boxAlpha = 0;
+                else if (absZ > 2.5) boxAlpha = 1 - (absZ - 2.5);
+
+                if (boxAlpha <= 0) return;
+
+                const t1 = toScreen(-hx, hy, -hz + zOffset); const t2 = toScreen(hx, hy, -hz + zOffset);
+                const t3 = toScreen(hx, hy, hz + zOffset); const t4 = toScreen(-hx, hy, hz + zOffset);
+                const b1 = toScreen(-hx, -hy, -hz + zOffset); const b2 = toScreen(hx, -hy, -hz + zOffset);
+                const b3 = toScreen(hx, -hy, hz + zOffset); const b4 = toScreen(-hx, -hy, hz + zOffset);
+
+                const stroke = `rgba(30, 41, 59, ${boxAlpha * 0.2})`;
+                const fillTop = `rgba(248, 250, 252, ${boxAlpha})`;
+                const fillFront = `rgba(255, 255, 255, ${boxAlpha})`;
+                const fillSide = `rgba(226, 232, 240, ${boxAlpha})`;
+
+                // Shadow
+                const shadowY = -hy - 0.1;
+                const sh1 = toScreen(-hx, shadowY, -hz + zOffset); const sh2 = toScreen(hx, shadowY, -hz + zOffset);
+                const sh3 = toScreen(hx, shadowY, hz + zOffset); const sh4 = toScreen(-hx, shadowY, hz + zOffset);
+                ctx.globalCompositeOperation = 'destination-over';
+                drawPolygon([sh1, sh2, sh3, sh4], `rgba(0,0,0,${0.05 * boxAlpha})`);
+                ctx.globalCompositeOperation = 'source-over';
+
+                drawPolygon([b2, t2, t3, b3], fillSide, stroke);
+                drawPolygon([b4, t4, t3, b3], fillFront, stroke);
+                drawPolygon([t1, t2, t3, t4], fillTop, stroke);
+
+                if (boxAlpha > 0.1) {
+                    ctx.save();
+                    const center = toScreen(0, 1.0, hz + zOffset);
+                    ctx.translate(center.x, center.y);
+                    const a = Math.cos(Math.PI / 6) * scale;
+                    const b = Math.sin(Math.PI / 6) * scale;
+                    ctx.transform(a / 60, b / 60, 0, scale / 60, 0, 0);
+
+                    ctx.fillStyle = `rgba(15, 23, 42, ${boxAlpha})`;
+                    const contact = contacts[index % contacts.length];
+
+                    // Name
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                    ctx.font = `bold 14px 'Inter', sans-serif`;
+                    ctx.fillText(contact.name, 0, 0);
+
+                    // Details
+                    const listStartY = 22;
+                    const lineHeight = 12;
+                    ctx.font = `10px 'JetBrains Mono', monospace`;
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = `rgba(71, 85, 105, ${boxAlpha})`;
+
+                    const lines = [`WA: ${contact.whatsapp}`, `Int: ${contact.interests}`, `Date: ${contact.date}`];
+                    lines.forEach((line, i) => ctx.fillText(line, -90, listStartY + (i * lineHeight)));
+
+                    // Tag
+                    if (contact.tag) {
+                        ctx.fillStyle = `rgba(16, 185, 129, ${boxAlpha})`; // Emerald
+                        ctx.font = `bold 10px 'Inter', sans-serif`;
+                        ctx.fillText(contact.tag.toUpperCase(), -90, listStartY + (lines.length * lineHeight) + 5);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                const now = Date.now();
+                const stepDuration = 2500;
+                const gap = 2.5;
+                const numBoxes = 4;
+                const loopLength = gap * numBoxes;
+
+                const currentStep = Math.floor(now / stepDuration);
+                const stepProgress = (now % stepDuration) / stepDuration;
+                const globalZ = (currentStep * gap) + (easeInOutCubic(stepProgress) * gap);
+
+                let renderList = [];
+                for (let i = 0; i < numBoxes; i++) {
+                    let z = (i * gap + globalZ) % loopLength;
+                    z = z - (loopLength / 2) - gap;
+                    if (z < -loopLength / 2) z += loopLength;
+                    renderList.push({ z: z, index: i });
+                }
+
+                renderList.sort((a, b) => a.z - b.z);
+                renderList.forEach(item => drawBox(item.z, item.index));
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+</body>
+
+</html>
